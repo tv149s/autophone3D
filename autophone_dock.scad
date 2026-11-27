@@ -1,11 +1,12 @@
-// AutoPhone 充电座外壳 — 参数化,前低后高的楔形,Bambu Lab A1(256 x 256 x 256)打印。
-// 当前版本:170 x 127(≈4:3),顶面倾角 6°(前高 6.7、后高约 19.9);屏幕(2.8" CYD 板)在左,无线充电线圈 + MagSafe 磁环在右,
-//   ESP32 开发板贴在线圈前方顶面内侧,USB-C 在背面居中;顶面和侧壁一体,唯一的接缝在底面(嵌入式底板)。
+// AutoPhone 充电座外壳 — 参数化,前低后高的楔形,Bambu Lab A1 / P1S(256 x 256 x 256)打印。
+// 当前版本(第17d版):170 x 127(≈4:3),顶面倾角 6°(前高 6.7、后高约 19.9);屏幕(2.8" CYD 板)在左,无线充电线圈 + MagSafe 磁环在右,
+//   ESP32 开发板贴在顶面内侧,INMP441 麦克风贴在前沿正中,USB-C 在背面居中;顶面和侧壁一体,唯一的接缝在底面(嵌入式底板)。
 // 坐标(俯视):X = 左→右,Y = 前→后,Z = 上。下面的注释保留了每一版的修改原因(第 N 版 …),方便按实物再调。
 //
 // 渲染:  openscad -D 'part="shell"' -o shell.stl autophone_dock.scad
-//        打印件:shell(外壳,顶面朝下)| plate2(底板)| cover(线圈压板)| clipsbrim(屏幕卡件 x14,带可撕裙边)| whites(白色 logo + 文字,双色共打)
-//        预览:assembly(默认)| inside(内部器件)| exploded
+//        打印件:shell(外壳,顶面朝下)| plate2(底板)| cover(线圈压板)| clipsbrim(屏幕卡件 x14,带可撕裙边)| whites(白色 logo + 文字 + 圆环 + 话筒图标,双色共打)
+//        试装件:coilfit(线圈区)| micfit(麦克风)| coilpad(线圈垫片,线圈偏薄时用)
+//        预览:assembly(默认)| inside(内部器件)| exploded | look(黑壳 + 白色嵌件)
 part = "assembly";
 
 $fn = 96;
@@ -38,7 +39,8 @@ fit_gap = 0.3;
 
 // ---------------------------------------------------------------- 面板上的元素,位置都用俯视坐标 [x, y]
 // 第4版(设计者):左右对调 —— 屏幕在左、MagSafe 在右(从正面/顶面看);所有 x 按 W - x 镜像,板子本身只平移不翻转
-coil_c = [129.15, 83];      // 第3版(设计者,内侧视角 右4 下5.5):手机外沿离设备边 3.5 基本齐平;圆心与屏幕窗中心同一水平线
+coil_c = [129.15, 91];      // 第17版(2026-11-25 设计者):往后 8(原 83)—— 手机镜头模组压在后沿上把手机垫高、离线圈远、发热;往后挪让镜头悬在后沿外(第10/11版 88.5 时镜头正卡在边缘)
+// coil_c 旧值 [129.15, 83]:      // 第3版(设计者,内侧视角 右4 下5.5):手机外沿离设备边 3.5 基本齐平;圆心与屏幕窗中心同一水平线
 // 充电线圈(线圈面朝面板放入):从外表面起 —— 覆盖层 0.5 / 44mm 线圈坑 1.0(线径)/ 49.5mm 磁片坑 1.0
 // 线圈区局部加厚到 2.5(面板其余 2.0);磁片外围四段 1.2mm 宽的圆弧把它包住;台阶上四条走线槽引出线圈线
 coil_d = 49.5;     // 磁片外径(设计者实测 49,定 49.5)
@@ -47,7 +49,22 @@ coil_skin = 1.0;   // 覆盖层(第4次:0.5→1.0,设计者提议加厚:磁环�
 coil_wire_h = 1.0; // 线圈坑深 = 线径
 coil_ferrite_h = 1.0;   // 磁片坑深
 coil_fit = 0.4;    // 直径方向余量
-coil_local_t = coil_skin + coil_wire_h + coil_ferrite_h;   // 2.5:线圈区局部厚度
+// 第17版线圈结构(设计者):不要方台和阶梯坑 —— 顶面内侧一个整圆安装坑(~Ø55,深 3),设计者把 MagSafe 磁环(高 ~3)压进去、线圈在磁环中间;
+// 外面不再贴磁吸贴,磁环位置改打白色圆环(和 logo 一样双色共打),也免掉了凹槽上方悬空层的塌陷;压板改成圆的,能盖住就行。
+coil_v2 = true;
+coil_pocket_d = 55.4;      // 安装坑直径(磁环 ~55 + 余量)
+coil_pocket_h = 3.0;       // 安装坑深(从覆盖层内表面量):磁环高 ~3
+coil_skin2 = 0.6;          // 第17b版(设计者):磁环上方的外壳只留 2~3 层(0.6),吸力足、强度够
+coil_spigot_d = 44.5;      // 磁环内孔里的定位圆台(磁环内径 45,设计者:按 44.5 打)
+coil_spigot_h = 0.4;       // 只多打 1~2 层:线圈贴着它,离外表面 0.6 + 0.4 = 1.0
+coil_ring_w = 2.0;         // 安装坑围墙厚
+coil_boss_d = 5.0;         // 围墙外侧四个压板定位柱的加厚凸台
+coil_press_d = 42;         // 压板上的压线圈凸台(在磁环内圈里,把线圈顶向覆盖层);线圈比磁环薄时用
+coil_press_h = 0.6;        // 垫片(part="coilpad")厚;第17c版设计者试装:不需要垫片
+coil_lead_n = 4;           // 围墙上的走线口
+ring_c = [129.15, 83];     // 第17c版(设计者):给用户看的白环留在原位置(和屏幕中心同一水平线);磁环和线圈实际在它后面 8(coil_c)
+ring_depth = 0.4;          // 顶面白色圆环(磁环正上方 55/45)深:两层白;覆盖层 0.6 剩 0.2 黑,双色共打时整层实心(只打黑色单色时这里会很薄)
+coil_local_t = coil_v2 ? coil_skin2 + coil_pocket_h : coil_skin + coil_wire_h + coil_ferrite_h;   // 2.5:线圈区局部厚度
 coil_arc_w = 1.2;  // 包裹圆弧宽(设计者:1mm 或略宽)
 coil_arc_h = 0;    // 第2版d:包裹圆弧取消,改由线圈压板压住磁片(原 1.5)
 coil_lead_w = 2.5; // 走线槽宽(上下左右四条)
@@ -116,6 +133,28 @@ inlay_fit = 0.05;          // 嵌件每边比凹槽小 0.05:TPU 压进去靠弹�
 // 产品标志:MagSafe 线圈正下方、与文字同一水平线(放手机时被手机盖住,拿开手机可见)
 mark_d = 18;
 mark_c = [129.15, 29];
+
+// ---------------------------------------------------------------- 麦克风(第16版,2026-11-25 设计者):INMP441 圆形模块,贴在顶面内侧前沿正中
+// 模块:圆板 Ø14,中间是收音孔(麦克风芯片底部进声),左右两侧各一个半圆小凹口;设计者原来自己在顶面钻孔,孔中心离前沿内壁 10。
+// 做法:顶面开收音通孔 → 内侧一圈矮定位圈(内径 = 板径 + 2×间隙,后侧留缺口走线)→ 圈内左右两根小销卡进凹口防转;
+// 前沿加强筋在麦克风周围让开。尺寸都按设计者手上的实物再调(先打 part="micfit" 试装件)。
+mic_on = true;
+mic_c = [W / 2, wall_t + 10];      // 收音孔中心:左右居中,离前沿内壁 10
+mic_pcb_d = 14;                    // 模块圆板直径
+mic_fit = 0.3;                     // 板与定位圈之间单边间隙
+mic_ring_t = 1.6;                  // 定位圈壁厚
+mic_ring_h = 2.0;                  // 定位圈高(从顶面内侧往下):板厚 ~1 + 芯片 ~1
+mic_gap = 7;                       // 定位圈后侧缺口宽(走线;模块的焊盘转到朝后)
+mic_hole_d = 1.8;                  // 顶面收音孔(第17c版设计者:1.5~2 之间,留公差;原 1.6)
+mic_pins = true;                   // 左右两根防转销,卡进板边的半圆凹口
+mic_pin_d = 1.6;                   // 第17c版(设计者试装):板边的凹口是半圆 —— 销子一半嵌在定位圈墙里、一半露出卡进半圆凹口(整根销卡不进)
+mic_pin_h = mic_ring_h;            // 和定位圈一样高
+mic_pin_r = mic_pcb_d / 2 + mic_fit;   // 销中心正好在定位圈内壁上
+mic_icon = true;                   // 第17c版(设计者):白色话筒图标,收音孔在话筒头中间(双色共打,和 logo 一样)
+mic_icon_depth = 0.84;             // 同 logo 白色 4 层
+mic_icon_h = 7.3;                  // 第17d版(设计者 2026-11-25):话筒图标不再框住收音孔,改放在 AUTOPHONE 后面,和字一样高(实测字高 7.26,字 x 10.5..76.5)
+mic_icon_c = [mic_c[0], logo_c[1]];  // 竖直中线和收音孔对齐(x = 收音孔),和文字同一水平线
+mic_clear = 22;                    // 前沿加强筋在麦克风周围让开的宽度(深度到 mic_c.y + mic_clear/2)
 with_touch = false;        // 铜箔触摸已取消(改屏幕触摸,下一台 WiFi 设备做)
 touch_c = [153, 26];
 touch = [70, 34];
@@ -142,10 +181,10 @@ qi_board = [32, 30];       // Qi 控制板(设计者实测 32 x 30;micro USB 凸
 cover_size = 54;           // 压板(= 加厚方台)边长,盖住 49.5 的磁片坑
 cover_r = 5;
 cover_t = 1.5;             // 第5版(设计者):加厚一层打印(1.2→1.5),更结实
-cover_hole = 23.5;         // 四角定位柱到中心(面板坐标)
+cover_hole = coil_v2 ? (coil_pocket_d / 2 + coil_boss_d / 2) / sqrt(2) : 23.5;   // 四角定位柱到中心(面板坐标);第17版在圆墙外侧 45° 方向         // 四角定位柱到中心(面板坐标)
 // 设计者:不用螺丝 —— 方台四角出 Ø2.5 定位柱,穿过压板 Ø2.8 孔、多露 1.5,烙铁烫平或点胶锁住
 cover_pin_d = 2.5;
-cover_pin_hole = 2.8;
+cover_pin_hole = 3.1;      // 第17c版(设计者试装):稍大一点(原 2.8)
 cover_pin_out = 1.5;
 // 压板四边过线槽:每边 3 道(中间那道正对线圈走线槽),U 形
 cover_notch_w = 3.0;
@@ -325,6 +364,12 @@ front_rib_w = 1.6;
 front_rib_pitch = 8;
 front_rib_x = [wall_t - 0.5, W - wall_t + 0.5];
 module front_ribs2d() {
+    difference() {
+        front_ribs2d_all();
+        if (mic_on) translate([mic_c[0] - mic_clear / 2, -1]) square([mic_clear, mic_c[1] + mic_clear / 2 + 1]);
+    }
+}
+module front_ribs2d_all() {
     for (y = front_rib_ys) translate([front_rib_x[0], y - front_rib_w / 2]) square([front_rib_x[1] - front_rib_x[0], front_rib_w]);
     ys = concat([wall_t - 0.5], front_rib_ys);
     for (r = [0 : len(front_rib_ys) - 1]) {
@@ -345,6 +390,37 @@ module front_ribs() {
             translate([0, 0, floor_t + ledge_w]) linear_extrude(back_h) inner2d(-0.6);
         }
     }
+}
+
+module mic_seat() {
+    on_panel(mic_c, -lid_t - mic_ring_h) difference() {
+        cylinder(d = mic_pcb_d + 2 * mic_fit + 2 * mic_ring_t, h = mic_ring_h + eps);
+        translate([0, 0, -1]) cylinder(d = mic_pcb_d + 2 * mic_fit, h = mic_ring_h + 2);
+        translate([-mic_gap / 2, 0, -1]) cube([mic_gap, mic_pcb_d, mic_ring_h + 2]);      // 后侧缺口:走线
+    }
+    if (mic_pins) for (sx = [-1, 1]) on_panel(mic_c, -lid_t - mic_pin_h) translate([sx * mic_pin_r, 0, 0]) cylinder(d = mic_pin_d, h = mic_pin_h + eps, $fn = 24);
+}
+module mic_icon2d(w = 0.9) {      // 话筒:圆头胶囊 + U 形托 + 立杆 + 底座;上 = 往后;w = 线宽
+    translate([0, 0]) offset(r = 2.4) square([0.01, 3.2], center = true);              // 话筒头:宽 4.8、高 8
+    difference() {                                                                        // U 形托
+        offset(r = 3.4 + w) square([0.01, 3.2], center = true);
+        offset(r = 3.4) square([0.01, 3.2], center = true);
+        translate([-10, -0.2]) square([20, 20]);
+    }
+    translate([-w / 2, -1.6 - 3.4 - w - 1.8]) square([w, 1.8 + 0.01]);                // 立杆
+    translate([-2.6, -1.6 - 3.4 - w - 1.8 - w]) square([5.2, w]);                      // 底座
+}
+// 第17d版:按字高缩放、上下居中(原图标高 12.6:话筒头顶 +4.0 到底座 -8.6);线宽原 0.9 缩放后太细,缩放前加粗到 1.1
+module mic_icon_sized() { scale(mic_icon_h / 12.6) translate([0, 2.3]) mic_icon2d(w = 1.1); }
+module mic_white() { if (mic_on && mic_icon) on_panel(mic_icon_c, -mic_icon_depth) linear_extrude(mic_icon_depth)
+    offset(delta = -white_shrink) mic_icon_sized(); }
+module m_mic() {      // 预览用:圆板 + 芯片(朝内)
+    on_panel(mic_c, -lid_t - 1.0) difference() {
+        cylinder(d = mic_pcb_d, h = 1.0);
+        for (sx = [-1, 1]) translate([sx * mic_pcb_d / 2, 0, -1]) cylinder(d = 2, h = 3, $fn = 24);
+        translate([0, 0, -1]) cylinder(d = 0.8, h = 3, $fn = 16);
+    }
+    on_panel(mic_c, -lid_t - 2.0) translate([-2.4, -1.9, 0]) cube([4.7, 3.8, 1.0]);
 }
 
 module shell(with_corner_bosses = true) {
@@ -383,7 +459,15 @@ module shell(with_corner_bosses = true) {
                 if (win_rib_gap > 0) translate([0, 0, -1]) linear_extrude(cyd_boss_len + 2) square([glass[0] + 20, win_rib_gap], center = true);
             }
             // 线圈区局部加厚到 coil_local_t + 四段包裹圆弧
-            on_panel(coil_c, -coil_local_t) linear_extrude(coil_local_t - lid_t + eps) rr2d_c([cover_size, cover_size], cover_r);   // 方台,压板贴在它底面
+            if (!coil_v2) on_panel(coil_c, -coil_local_t) linear_extrude(coil_local_t - lid_t + eps) rr2d_c([cover_size, cover_size], cover_r);   // 方台,压板贴在它底面
+            if (coil_v2) on_panel(coil_c, -coil_local_t) linear_extrude(coil_local_t - lid_t + eps) difference() {     // 第17版:圆墙 + 四个定位柱凸台
+                union() {
+                    circle(d = coil_pocket_d + 2 * coil_ring_w);
+                    for (sx = [-1, 1], sy = [-1, 1]) translate([sx * cover_hole, sy * cover_hole]) circle(d = coil_boss_d);
+                }
+                circle(d = coil_pocket_d);
+                for (i = [0 : coil_lead_n - 1]) rotate((i + 0.5) * 360 / coil_lead_n + 45) translate([coil_pocket_d / 2 - 1, -coil_lead_w / 2]) square([coil_ring_w + 2, coil_lead_w]);
+            }
             for (sx = [-1, 1], sy = [-1, 1]) on_panel(coil_c, -coil_local_t - cover_t - cover_pin_out) translate([sx * cover_hole, sy * cover_hole, 0]) cylinder(d = cover_pin_d, h = cover_t + cover_pin_out + eps);
             if (coil_arc_h > 0) on_panel(coil_c, -coil_local_t - coil_arc_h) difference() {
                 cylinder(r = coil_d / 2 + coil_fit / 2 + coil_arc_w, h = coil_arc_h + eps);
@@ -393,6 +477,7 @@ module shell(with_corner_bosses = true) {
             ceiling_mounts();
             if (rib_on) side_ribs();
             if (front_rib_on) front_ribs();
+            if (mic_on) mic_seat();
             // 文字凹槽下方的加强垫(槽深 2.0 > 顶面厚的一半)
             if (text_pad[2] > 0) on_panel(logo_c, -lid_t - text_pad[2]) linear_extrude(text_pad[2] + eps) rr2d_c([text_pad[0], text_pad[1]], 2);
             // 顶面与侧壁内侧交角补 45° 加强角:外面倒角加大后,转角处仍留够壁厚
@@ -431,17 +516,24 @@ module shell(with_corner_bosses = true) {
             }
         }
         // 线圈:磁片坑(49.5,深 1)→ 线圈坑(44,深 1)→ 覆盖层 0.5;台阶上四条走线槽(深同线圈坑),穿过包裹圆弧的缺口
-        on_panel(coil_c, -coil_local_t - coil_arc_h - eps) cylinder(d = coil_d + coil_fit, h = coil_arc_h + coil_ferrite_h + eps);
-        on_panel(coil_c, -coil_local_t + coil_ferrite_h - eps) cylinder(d = coil_wire_d + coil_fit, h = coil_wire_h + eps);
+        if (coil_v2) {
+            on_panel(coil_c, -coil_local_t - eps) difference() {      // 安装坑:到覆盖层内表面(0.6),中间留定位圆台
+                cylinder(d = coil_pocket_d, h = coil_pocket_h + eps);
+                translate([0, 0, coil_pocket_h - coil_spigot_h]) cylinder(d = coil_spigot_d, h = coil_spigot_h + 1);
+            }
+            on_panel(ring_c, -ring_depth) linear_extrude(ring_depth + 1) difference() { circle(d = mag_od); circle(d = mag_id); }   // 白色圆环槽(原位置)
+        }
+        if (!coil_v2) on_panel(coil_c, -coil_local_t - coil_arc_h - eps) cylinder(d = coil_d + coil_fit, h = coil_arc_h + coil_ferrite_h + eps);
+        if (!coil_v2) on_panel(coil_c, -coil_local_t + coil_ferrite_h - eps) cylinder(d = coil_wire_d + coil_fit, h = coil_wire_h + eps);
         // 走线槽比线圈坑深 0.3(距外表面 0.8~1.8):磁吸贴凹槽(0~0.5)从上面跨过,中间留 0.3,不会漏缝
-        for (a = [0, 90]) on_panel(coil_c, -coil_local_t + coil_ferrite_h - lead_drop - eps) rotate([0, 0, a])
+        if (!coil_v2) for (a = [0, 90]) on_panel(coil_c, -coil_local_t + coil_ferrite_h - lead_drop - eps) rotate([0, 0, a])
             translate([0, 0, coil_wire_h / 2]) cube([coil_d + 2 * coil_arc_w + 6, coil_lead_w, coil_wire_h + 2 * eps], center = true);
         // 铜箔凹位
         if (with_touch) on_panel(touch_c, -lid_t - eps) linear_extrude(foil_pocket + eps) rr2d_c(touch, 3);
         // 顶面刻线:磁吸贴对位圆槽 + 触摸点
-        for (i = [0 : mag_slit_n - 1]) on_panel(coil_c, -coil_skin - eps) rotate([0, 0, (i + 0.5) * 360 / mag_slit_n])
+        if (!coil_v2) for (i = [0 : mag_slit_n - 1]) on_panel(coil_c, -coil_skin - eps) rotate([0, 0, (i + 0.5) * 360 / mag_slit_n])
             translate([(mag_id - mag_fit) / 2 - 0.2, -mag_slit_w / 2, 0]) cube([(mag_od - mag_id + 2 * mag_fit) / 2 + 0.4, mag_slit_w, coil_skin - mag_t + 2 * eps]);
-        on_panel(coil_c, -mag_t) difference() {
+        if (!coil_v2) on_panel(coil_c, -mag_t) difference() {
             cylinder(d = mag_od + mag_fit, h = mag_t + 1);
             translate([0, 0, -1]) cylinder(d = mag_id - mag_fit, h = mag_t + 3);
             for (i = [0 : mag_tab_n - 1]) rotate([0, 0, (i + 0.5) * 360 / mag_tab_n]) translate([mag_od / 2, 0, 0]) cube([mag_od / 2, mag_tab_w, 2 * mag_t + 4], center = true);
@@ -449,6 +541,10 @@ module shell(with_corner_bosses = true) {
         on_panel(mark_c, -mark_depth) linear_extrude(mark_depth + 1) logo_mark(mark_d);
         on_panel(logo_c, -logo_depth) linear_extrude(logo_depth + 1) logo_text2d();
         if (with_touch) on_panel(touch_c, -engrave) difference() { cylinder(d = touch_mark_d, h = engrave + 1); translate([0, 0, -1]) cylinder(d = touch_mark_d - 3, h = engrave + 3); }
+        // 麦克风白色图标槽
+        if (mic_on && mic_icon) on_panel(mic_icon_c, -mic_icon_depth) linear_extrude(mic_icon_depth + 1) mic_icon_sized();
+        // 麦克风收音孔:穿透顶面
+        if (mic_on) on_panel(mic_c, -lid_t - 1) cylinder(d = mic_hole_d, h = lid_t + 2, $fn = 32);
         // 后墙 USB-C 开口(水平)+ 开口周围从内侧挖薄
         translate([usbc_x, D - wall_t - 1, usbc_axis_z]) rotate([-90, 0, 0]) linear_extrude(wall_t + 2) rr2d_c(usbc_open, usbc_open[1] / 2 - 0.01);
         // 板子那一段后墙从内侧挖薄(板宽 + 1,板厚方向上下各留 1mm)
@@ -597,6 +693,7 @@ module logo_tile(k) {
 module logo_white() { on_panel(mark_c, -mark_depth) linear_extrude(mark_depth) logo_mark(mark_d); }
 // 第10版(设计者):文字也用白色共打,和 logo 一样 —— 打印时 -D mark_depth=0.32 -D logo_depth=0.32,黑壳第一层也是 0.32,喷嘴齐平走过
 white_shrink = 0.05;        // 第10版实测:A 的三角孔(1.45×2.5)被首层糊住 → 白字每边收 0.05,缝由黑色首层压扁填满
+module ring_white() { on_panel(ring_c, -ring_depth) linear_extrude(ring_depth) offset(delta = -white_shrink) difference() { circle(d = mag_od); circle(d = mag_id); } }   // 第17版:原磁吸贴位置打白色圆环
 module text_white() { on_panel(logo_c, -logo_depth) linear_extrude(logo_depth) offset(delta = -white_shrink) logo_text2d(); }
 
 // 屏幕板卡件:开口筒,套到定位柱上压住屏幕板(6 个,多 2 个备用);打印时竖放
@@ -667,7 +764,12 @@ module m_cyd_pcb(){ on_panel([cyd_c[0] + cyd_hole_shift[0], cyd_c[1] + cyd_hole_
                         for (sx = [-1, 1], sy = [-1, 1]) translate([sx * cyd_holes[0] / 2, sy * cyd_holes[1] / 2, -1]) cylinder(d = 3.2, h = 4);
                     } }
 module m_cyd_back(){ on_panel([cyd_c[0] + cyd_hole_shift[0], cyd_c[1] + cyd_hole_shift[1]], -bezel_t - glass_stack - 1.6 - 3.5) linear_extrude(3.5) rr2d_c([cyd_pcb[0] - 8, cyd_pcb[1] - 4], 1); }
-module m_coil()   { on_panel(coil_c, -coil_local_t) {                       // 磁片在下(朝内),线圈朝面板
+module m_coil()   { if (coil_v2) m_coil_v2(); else m_coil_v1(); }
+module m_coil_v2() {      // 磁环(外 55 / 内 46 / 高 3)+ 线圈(Ø44,厚 2)贴着覆盖层
+    on_panel(coil_c, -coil_local_t) difference() { cylinder(d = 55, h = coil_pocket_h); translate([0, 0, -1]) cylinder(d = 46, h = coil_pocket_h + 2); }
+    on_panel(coil_c, -coil_skin2 - coil_spigot_h - 2) cylinder(d = coil_wire_d, h = 2);
+}
+module m_coil_v1()   { on_panel(coil_c, -coil_local_t) {                       // 磁片在下(朝内),线圈朝面板
                         cylinder(d = coil_d - 0.2, h = coil_ferrite_h);
                         translate([0, 0, coil_ferrite_h]) difference() { cylinder(d = coil_wire_d - 0.2, h = coil_wire_h - 0.05); translate([0, 0, -1]) cylinder(d = 10, h = 3); }
                     } }
@@ -681,6 +783,26 @@ module m_devkit() { on_panel(devkit_c, -lid_t - 1.6) rotate([0, 0, devkit_rot]) 
                     } }
 // 线圈压板(单独打印,平面朝下):上面贴住磁片,背面是 Qi 板定位框
 module coil_cover() {
+    if (coil_v2) coil_cover_v2(); else coil_cover_v1();
+}
+// 第17版压板:圆形,盖住安装坑和四个定位柱凸台;中间一个凸台把线圈顶向覆盖层;边上四个走线缺口对着围墙的走线口
+module coil_cover_v2() {
+    rr = coil_pocket_d / 2 + coil_ring_w;
+    difference() {
+        union() {
+            on_panel(coil_c, -coil_local_t - cover_t) linear_extrude(cover_t) hull() {
+                circle(r = rr);
+                for (sx = [-1, 1], sy = [-1, 1]) translate([sx * cover_hole, sy * cover_hole]) circle(d = coil_boss_d);
+            }
+            // 压线圈的凸台改成单独的垫片 part="coilpad"(在压板上会让压板悬空 0.6,贴床打不了);线圈够厚时可以不垫
+        }
+        for (sx = [-1, 1], sy = [-1, 1]) on_panel(coil_c, -coil_local_t - cover_t - 1) translate([sx * cover_hole, sy * cover_hole, 0]) cylinder(d = cover_pin_hole, h = cover_t + 2);
+        for (i = [0 : coil_lead_n - 1]) on_panel(coil_c, -coil_local_t - cover_t - 1) rotate((i + 0.5) * 360 / coil_lead_n + 45)
+            translate([rr - cover_notch_d, -cover_notch_w / 2, 0]) cube([cover_notch_d + 5, cover_notch_w, cover_t + 2]);
+    }
+    fence(qi_board_c, qi_board, fence_h, -coil_local_t - cover_t, qi_rot);
+}
+module coil_cover_v1() {
     difference() {
         on_panel(coil_c, -coil_local_t - cover_t) linear_extrude(cover_t) rr2d_c([cover_size, cover_size], cover_r);
         for (sx = [-1, 1], sy = [-1, 1]) on_panel(coil_c, -coil_local_t - cover_t - 1) translate([sx * cover_hole, sy * cover_hole, 0]) cylinder(d = cover_pin_hole, h = cover_t + 2);
@@ -710,6 +832,7 @@ else if (part == "plate") plate();
 else if (part == "plate2") plate2();
 else if (part == "cover") rotate([180, 0, 0]) rotate([-angle, 0, 0]) translate([0, 0, -front_h]) coil_cover();   // 打印:贴磁片的平面朝下
 else if (part == "cover_world") coil_cover();
+else if (part == "coilpad") cylinder(d = coil_press_d, h = coil_press_h);      // 第17b版:垫在线圈和压板之间的圆片(Ø42 x 0.6)
 else if (part == "fit") to_print() fit();
 else if (part == "screenfit") to_print() screen_fit();
 else if (part == "clips") clips();
@@ -721,7 +844,10 @@ else if (part == "inlaytest") inlays_test();
 else if (part == "inlays2") inlays_v2();
 else if (part == "logofit") to_print() logo_fit();
 else if (part == "logowhite") to_print() logo_white();
-else if (part == "whites") to_print() { logo_white(); text_white(); }
+else if (part == "whites") to_print() { logo_white(); text_white(); if (coil_v2) ring_white(); mic_white(); }
+else if (part == "micfit_w") to_print() intersection() { mic_white(); translate([mic_c[0] - 15, -1, -1]) cube([30, mic_c[1] + 15, back_h + 2]); }
+else if (part == "coilfit_w") to_print() ring_white();
+else if (part == "ringwhite") to_print() ring_white();
 // 多色 logo 试片(P1S + AMS):黑底方片,logo 齐平嵌在表面;表面朝下打(镜像,从正面看是正的)。四个零件同一坐标,切片时合成一个物体按料分色
 // 整壳四色(P1S + AMS):外壳黑 + 文字白 + logo 白/橙/绿,同一坐标(to_print),切片合成一个物体。白字用 -D white_shrink=0
 // (AMS 同一次打印,不需要 A1 两遍共打时留的 0.05 缝)
@@ -742,7 +868,17 @@ else if (part == "m_coil") m_coil();
 else if (part == "m_devkit") m_devkit();
 else if (part == "m_qi") m_qi();
 else if (part == "m_usbc") m_usbc();
+else if (part == "m_mic") m_mic();
+else if (part == "coilfit") to_print() intersection() {     // 第17版线圈区试装件:安装坑 + 围墙 + 定位柱 + 白环槽(压板另打 part="cover")
+    shell();
+    on_panel(coil_c, -30) cylinder(d = coil_pocket_d + 2 * coil_ring_w + 12, h = 40);
+}
+else if (part == "micfit") to_print() intersection() {      // 麦克风试装件:前沿正中一小块(含收音孔、定位圈、前墙)
+    shell();
+    translate([mic_c[0] - 15, -1, -1]) cube([30, mic_c[1] + 15, back_h + 2]);
+}
 else if (part == "m_cyd_back") m_cyd_back();
+else if (part == "look") { color("#2b2b2b") shell(); color("#f4f4f4") { logo_white(); text_white(); if (coil_v2) ring_white(); mic_white(); } }   // 第17d版:黑壳 + 白色嵌件,看效果用
 else if (part == "exploded") { color("#333") plate(); color("#555", 0.9) translate([0, 0, 25]) shell(); }
 else if (part == "section_coil") intersection() {      // 沿线圈中心(前后方向)剖开,翻成内侧朝上看
     union() { color("#555") shell(); color("#c8743a") m_coil(); }
@@ -753,5 +889,5 @@ else if (part == "section_usbc") intersection() {
     union() { color("#555") shell(); color("#999") plate(); color("#d22") m_usbc(); }
     translate([0, 0, -1]) cube([usbc_x, D + 1, back_h + 5]);   // 沿 USB-C 中心线剖开,看左半边截面
 }
-else if (part == "inside") { color("#555") shell(); color("#777") coil_cover(); color("#c80") { m_devkit(); m_qi(); m_usbc(); m_cyd_pcb(); m_coil(); } }
+else if (part == "inside") { color("#555") shell(); color("#777") coil_cover(); color("#c80") { m_devkit(); m_qi(); m_usbc(); m_cyd_pcb(); m_coil(); } if (mic_on) color("#2a7") m_mic(); }
 else { color("#333") plate(); color("#555") shell(); }

@@ -4,7 +4,7 @@ The case of the [AutoPhone](https://autophoneagent.com) dock, as a parametric [O
 
 ![The dock's case](images/assembly.png)
 
-> **Work in progress.** This is the case we print and use today. Coming next: a mount for a microphone (for meeting notes) and a revised layout for the charging board. Expect the parameters to move.
+> **Work in progress.** This is the case we print and use today (version 17d, November 2026). It now holds a microphone for meeting notes, and the magnet ring sits in a round pocket inside the top. Expect the parameters to keep moving.
 
 ## What's here
 
@@ -22,9 +22,9 @@ The case of the [AutoPhone](https://autophoneagent.com) dock, as a parametric [O
 |---|---|---|
 | Case (top + sides) | `autophone_dock_shell.stl` | Top face down, already oriented |
 | Bottom plate | `autophone_dock_plate2.stl` | Flat |
-| Coil cover | `autophone_dock_cover.stl` | Flat side down; holds the charging coil and magnet in place |
+| Coil cover | `autophone_dock_cover.stl` | Round, flat side down; holds the charging coil and the magnet ring in their pocket |
 | Screen clips ×14 | `autophone_dock_clipsbrim.stl` | With a one-layer brim that tears off |
-| Logo + lettering | `autophone_dock_whites.stl` | Optional: a second colour (see below) |
+| Logo, lettering, ring, mic icon | `autophone_dock_whites.stl` | Optional: a second colour (see below) |
 
 ## What it holds
 
@@ -32,8 +32,9 @@ Sizes as measured on our parts — change the parameters if yours differ.
 
 - 2.8" ESP32 touch-screen board ("CYD", ESP32-2432S028R): glass 69 × 50 mm, held by four pins and printed clips, no screws
 - ESP32 DevKit, 30 pins, headers removed (51.5 × 28 mm)
-- A wireless charging coil (Ø 44 mm) with its magnet (Ø 49.5 mm) and a charging controller board (32 × 30 mm), under the coil cover
-- A MagSafe-style magnetic sticker ring (55 / 45 mm, 0.5 mm thick) in the top's groove, so an iPhone snaps into place
+- A wireless charging coil (Ø 44 mm) and a charging controller board (32 × 30 mm), under the coil cover
+- A MagSafe-style magnet ring (55 / 45 mm, about 3 mm tall) pressed into a round pocket inside the top, with the coil in its middle; only 0.6 mm of case is left above it, so an iPhone snaps into place. A white ring printed on the top shows where to put the phone
+- An INMP441 microphone module (round, Ø 14 mm) behind a small sound hole at the front edge, held by a locating ring and two pins
 - A USB-C breakout board (21.5 × 12 mm), the socket at the back, centred
 - M2 × 6 countersunk self-tapping screws for the bottom plate
 
@@ -46,6 +47,7 @@ Tested on Bambu Lab A1 and P1S printers (256 mm bed) with PLA.
 - **Two colours with an AMS** (we use a P1S): print `whites` in white and the case in black as one multi-material print. The white logo and lettering are 0.84 mm deep by default (four layers). For a colourful mark, `logo3_w` / `logo3_o` / `logo3_g` split it into white, orange and green.
 - **Two colours without an AMS:** export both parts with `-D mark_depth=0.32 -D logo_depth=0.32`, print `whites` first (two 0.16 mm layers, white), leave it on the bed, change to black and print the case on top **with bed levelling off** so the probe does not hit the white parts. Both files use the same coordinates; turn off auto-arrange in the slicer.
 - Screen clips: print with their brim, then tear it off.
+- Trial parts before a full print: `coilfit` (the coil pocket), `micfit` (the microphone mount) and `coilpad` (a 0.6 mm spacer, only if your coil is thinner than ours).
 
 ## Changing the model
 
@@ -55,7 +57,12 @@ Open `autophone_dock.scad` in OpenSCAD (2021 or newer; a recent build with the M
 openscad -D 'part="shell"' -o shell.stl autophone_dock.scad
 ```
 
-`part`: `shell`, `plate2`, `cover`, `clipsbrim`, `whites` to print; `assembly` (default), `inside`, `exploded` to look.
+`part`: `shell`, `plate2`, `cover`, `clipsbrim`, `whites` to print; `coilfit`, `micfit`, `coilpad` to test-fit; `assembly` (default), `inside`, `exploded`, `look` to look.
+
+## Changes
+
+- **17d (Nov 2026):** INMP441 microphone mount at the front edge, with a sound hole and a white mic icon after the lettering. The magnet ring moved from a sticker on the outside to a round pocket inside the top; the coil sits 8 mm further back so the phone's camera bump hangs off the back edge instead of lifting the phone off the coil, and a white ring on the top marks the phone's place. Round coil cover. Bigger pin holes after test fits.
+- **15 (Nov 2026):** first public version.
 
 ## License
 
